@@ -18,11 +18,7 @@ export class ArticlesService {
 
   async create(data: CreateArticleDto) {
     const user = await this.userRepo
-      .findOne({
-        where: {
-          id: 1,
-        },
-      })
+      .findOne({ where: { id: 1 } })
       .catch((err) => {
         console.error(err);
         return null;
@@ -32,12 +28,10 @@ export class ArticlesService {
       throw new NotFoundException('User not found');
     }
 
-    const article = new ArticleEntity();
-    article.title = data.title;
-    article.text = data.text;
-    article.description = data.description;
-    article.tags = data.tags;
-    article.author = user;
+    const article = this.articleRepo.create({
+      ...data,
+      author: user,
+    });
 
     const res = await article.save();
     return new ArticleDto(res);
@@ -68,15 +62,7 @@ export class ArticlesService {
 
   async updateById(id: number, data: UpdateArticleDto) {
     const updatedArticle = await this.articleRepo
-      .update(
-        { id },
-        {
-          title: data.title,
-          text: data.text,
-          description: data.description,
-          tags: data.tags,
-        },
-      )
+      .update({ id }, data)
       .catch((err) => {
         console.error(err);
         return null;
